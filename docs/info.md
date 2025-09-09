@@ -31,7 +31,7 @@ You can test your *8-bit Binary Symmetry Detector (BSD)* in two main ways:
 * At the end, display if all tests passed.
 * Use *GTKWave* to observe the waveforms (input x, circuit output S, expected output).
 
-✅ If S always equals expected, then your design is correct.
+If S always equals expected, then your design is correct.
 
 ---
 
@@ -48,7 +48,7 @@ If you don’t want to run all 256 inputs, you can just test a few key cases:
 
 ---
 
-👉 In short: the easiest way is to *run the testbench* and confirm that the errors signal remains 0 after simulation.
+In short: the easiest way is to *run the testbench* and confirm that the errors signal remains 0 after simulation.
 
 Do you want me to *write a compact Verilog testbench* that automatically shows Pass/Fail at the end (instead of checking manually in GTKWave)?
 
