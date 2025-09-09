@@ -20,21 +20,23 @@ async def test_project(dut):
     dut.ui_in.value = 0
     dut.uio_in.value = 0
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
+    await ClockCycles(dut.clk, 5)
     dut.rst_n.value = 1
 
-    dut._log.info("Test project behavior")
+    dut._log.info("Testing Binary Sequence Detector (1011)")
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    # Input bit sequence: 1 0 1 1 should detect sequence
+    seq = [1, 0, 1, 1]
+    for bit in seq:
+        dut.ui_in.value = bit
+        await ClockCycles(dut.clk, 1)
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+    assert dut.uo_out.value == 1, "Sequence 1011 not detected!"
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+    # Try another sequence without 1011
+    seq = [1, 1, 0, 0]
+    for bit in seq:
+        dut.ui_in.value = bit
+        await ClockCycles(dut.clk, 1)
 
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
+    assert dut.uo_out.value == 0, "False detection occurred!"
