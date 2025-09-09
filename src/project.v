@@ -5,7 +5,7 @@
 
 `default_nettype none
 
-module tt_um_bsd (
+module tt_um_example (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -16,25 +16,28 @@ module tt_um_bsd (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  // Internal wires
-  wire [5:0] w;
-  wire       symmetry_out;
+  // Binary sequence detector for "1011"
+  reg [3:0] shift_reg;
+  reg       seq_detected;
 
-  // Symmetry detector logic
-  xor x1(w[0], ui_in[0], ui_in[7]);
-  xor x2(w[1], ui_in[1], ui_in[6]);
-  xor x3(w[2], ui_in[2], ui_in[5]);
-  xor x4(w[3], ui_in[3], ui_in[4]);
-  and a1(w[4], ~w[0], ~w[1]);
-  and a2(w[5], ~w[2], ~w[3]);
-  and a3(symmetry_out, w[4], w[5]);
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      shift_reg    <= 4'b0;
+      seq_detected <= 1'b0;
+    end else begin
+      // Shift in the new bit from ui_in[0]
+      shift_reg    <= {shift_reg[2:0], ui_in[0]};
+      // Check with next state
+      seq_detected <= ({shift_reg[2:0], ui_in[0]} == 4'b1011);
+    end
+  end
 
   // Drive outputs
-  assign uo_out  = {7'b0, symmetry_out};  // Only LSB shows symmetry result
+  assign uo_out  = {7'b0, seq_detected};  // LSB = sequence detected
   assign uio_out = 0;
   assign uio_oe  = 0;
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{uio_in, ena, clk, rst_n, 1'b0};
+  wire _unused = &{ui_in[7:1], uio_in, ena, 1'b0};
 
 endmodule
